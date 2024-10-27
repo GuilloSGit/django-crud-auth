@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
@@ -45,12 +45,13 @@ def signup(request):
 @login_required
 def passwords(request):
     owned_list = Password.objects.filter(user=request.user)
-    received_list = Password.objects.filter(sharedWith=request.user)
+    received_list = Password.objects.filter(shared=True, sharedWith=request.user)
     return render(request, 'passwords.html', {
         'on_passwords_page': True,
         'owned_list': owned_list,
         'received_list': received_list
     })
+
 
 
 @login_required
@@ -88,7 +89,32 @@ def create_password(request):
             })
 
 
-
+@login_required
+def password_edit(request, password_id):
+    if request.method == 'GET':
+        password = get_object_or_404(Password, pk=password_id, user=request.user)
+        return render(request, 'password_edit.html', {
+            'password': password,
+            'form': CreatePasswordForm(instance=password)
+        })
+    else:
+        password = get_object_or_404(Password, pk=password_id, user=request.user)
+        form = CreatePasswordForm(request.POST, instance=password)
+        if form.is_valid():
+            form.save()
+            return redirect('passwords')
+        else:
+            return render(request, 'password_edit.html', {
+                'password': password,
+                'form': form
+            })
+        
+@login_required
+def password_detail(request, password_id):
+    password = get_object_or_404(Password, pk=password_id, user=request.user)
+    return render(request, 'password_detail.html', {
+        'password': password
+    })
 
 def signout(request):
     logout(request)

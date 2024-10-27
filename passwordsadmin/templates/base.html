@@ -38,7 +38,7 @@
         </li>
         {% endif %}
         <li>
-          <p class="p-2 m-0">{{ user.username }}</p>
+          <p class="p-2 m-0"><span><i class="bi bi-person-circle"></i></span> <small>{{ user.username }}</small></p>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}" text="Logout" title="Logout"><i class="bi bi-door-open-fill"></i></a>

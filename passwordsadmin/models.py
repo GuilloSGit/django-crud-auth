@@ -11,5 +11,10 @@ class Password(models.Model):
     sharedWith   = models.ManyToManyField(User, related_name='shared_passwords', blank=True)
     user         = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='owned_passwords')
 
+    def save(self, *args, **kwargs):
+        if not self.shared:
+            self.sharedWith.clear()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
